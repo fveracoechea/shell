@@ -1,0 +1,63 @@
+{
+  "nodes": {
+    "nixpkgs": {
+      "locked": {
+        "lastModified": 1787736819,
+        "narHash": "sha256-IkjmqLoWzeqBAi1VIkdhDLMGjQDJ4suEDp59Zwxpswg=",
+        "rev": "9fbb54b33e91ee4ca368e35a78e0613c720600b3",
+        "type": "tarball",
+        "url": "https://releases.nixos.org/nixos/unstable/nixos-26.11pre1062397.9fbb54b33e91/nixexprs.tar.xz"
+      },
+      "original": {
+        "id": "nixpkgs",
+        "ref": "nixos-unstable",
+        "type": "indirect"
+      }
+    },
+    "quickshell": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1787279335,
+        "narHash": "sha256-CLX2Zp5i5BuLbOxNOkwRd9YY84IOrACNxBV79o9/F9Y=",
+        "ref": "refs/tags/v0.3.1",
+        "rev": "1a4716cde794a59928d9d9fc15f2afc7a95de360",
+        "revCount": 846,
+        "type": "git",
+        "url": "https://git.outfoxxed.me/outfoxxed/quickshell"
+      },
+      "original": {
+        "ref": "refs/tags/v0.3.1",
+        "type": "git",
+        "url": "https://git.outfoxxed.me/outfoxxed/quickshell"
+      }
+    },
+    "root": {
+      "inputs": {
+        "nixpkgs": "nixpkgs",
+        "quickshell": "quickshell",
+        "systems": "systems"
+      }
+    },
+    "systems": {
+      "locked": {
+        "lastModified": 1681028828,
+        "narHash": "sha256-Vy1rq5AaRuLzOxct8nz4T6wlgyUR7zLU309k9mBC768=",
+        "owner": "nix-systems",
+        "repo": "default",
+        "rev": "da67096a3b9bf56a91d16901293e51ba5b49a27e",
+        "type": "github"
+      },
+      "original": {
+        "owner": "nix-systems",
+        "repo": "default",
+        "type": "github"
+      }
+    }
+  },
+  "root": "root",
+  "version": 7
+}

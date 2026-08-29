@@ -1,11 +1,30 @@
+default:
+  @just --list
+
+# Run the shell configuration against a live Quickshell session
 dev:
   nix develop --command qs -p ./shell.qml
 
-lint:
-  nix develop --command bash -c 'VFS=$(ls -dt /run/user/$UID/quickshell/vfs/*/ | head -1); for qmldir in $(find . -name qmldir -not -path "./.*"); do dir=$(dirname "$qmldir"); name=$(echo "$dir" | sed "s|^\./||; s|/|.|g"); target="$VFS/qs/$dir"; if [ -d "$target" ] && [ ! -f "$target/qmldir" ]; then { echo "module qs.$name"; cat "$qmldir"; } > "$target/qmldir"; fi; done; FLAGS=$(echo "$QML_IMPORT_PATH $VFS" | tr ":" " " | tr " " "\n" | sed "s/^/-I /"); find . -type f -name "*.qml" -exec qmllint $FLAGS {} +'
-
+# Rewrite QML files into the required format (mutating fixer)
 format:
-  nix develop --command find . -type f -name "*.qml" -exec qmlformat --inplace {} +
+  nix develop --command bash -c 'git ls-files -z "*.qml" | xargs -0 qmlformat --inplace'
 
+# Typecheck production and test JavaScript
 typecheck:
-  nix develop --command bash -c 'shopt -s globstar nullglob; files=(**/*.js **/*.mjs **/*.cjs); if (( ${#files[@]} )); then tsc --project tsconfig.json; else printf "%s\n" "No JavaScript files to typecheck."; fi'
+  nix develop --command bash scripts/typecheck.sh
+
+# Lint production and test QML against the generated import tree
+lint:
+  nix develop --command bash scripts/lint.sh
+
+# Run the deterministic QtQuick Test suite
+test:
+  nix develop --command bash scripts/test.sh
+
+# Run the isolated Quickshell smoke check
+smoke:
+  nix develop --command bash scripts/smoke.sh
+
+# Run the full verification: format gate, type check, lint, tests, smoke
+check:
+  nix develop --command bash scripts/check.sh

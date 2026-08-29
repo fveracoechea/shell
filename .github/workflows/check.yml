@@ -1,0 +1,39 @@
+name: check
+
+on:
+  push:
+  pull_request:
+
+concurrency:
+  group: check-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7
+
+      - name: Install Nix
+        uses: cachix/install-nix-action@v31
+        with:
+          github_access_token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Install just
+        uses: extractions/setup-just@v4
+
+      - name: Run check
+        run: just check
+
+      - name: Upload results
+        if: failure()
+        uses: actions/upload-artifact@v7
+        with:
+          name: results
+          path: results/
+          if-no-files-found: ignore

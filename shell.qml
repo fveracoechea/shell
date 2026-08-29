@@ -1,6 +1,6 @@
 import Quickshell
-import "modules" as Modules
+import qs.Modules
 
 Scope {
-  Modules.Bar {}
+  Bar {}
 }

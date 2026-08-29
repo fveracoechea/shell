@@ -19,19 +19,18 @@
     devShells = forAllSystems (
       system: let
         pkgs = import nixpkgs {inherit system;};
+        qs = quickshell.packages.${system}.default;
       in {
-        default = let
-          qs = quickshell.packages.${system}.default;
-        in
-          pkgs.mkShell {
-            packages = [
-              qs
-              pkgs.qt6.qtdeclarative
-            ];
-            shellHook = ''
-              export QML_IMPORT_PATH="${qs}/lib/qt-6/qml:${qs}/bin:${pkgs.qt6.qtdeclarative}/lib/qt-6/qml"
-            '';
-          };
+        default = pkgs.mkShell {
+          packages = with pkgs; [
+            qs
+            qt6.qtdeclarative
+            material-symbols
+          ];
+          shellHook = ''
+            export QML_IMPORT_PATH="${qs}/lib/qt-6/qml:${qs}/bin:${pkgs.qt6.qtdeclarative}/lib/qt-6/qml"
+          '';
+        };
       }
     );
   };

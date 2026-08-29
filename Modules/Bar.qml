@@ -1,7 +1,7 @@
 import Quickshell
 import QtQuick
 
-import "../components" as Components
+import qs.Components
 
 Scope {
   id: root
@@ -11,15 +11,18 @@ Scope {
     model: Quickshell.screens
 
     PanelWindow {
+      id: bar
+      color: Theme.background
+
       anchors {
         top: true
         left: true
         right: true
       }
 
-      implicitHeight: 30
+      implicitHeight: 40
 
-      Components.Clock {
+      Clock {
         anchors.centerIn: parent
       }
     }

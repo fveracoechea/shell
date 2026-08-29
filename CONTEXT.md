@@ -28,3 +28,15 @@ The combined process exit, health sentinel, and diagnostic log evidence produced
 
 **Runner boundary**:
 The ownership split where QtQuick Test verifies deterministic seams and Quickshell supplies only the smoke signal.
+
+**Pure module**:
+A module whose complete import tree has no Quickshell dependency, so the test suite can load it.
+_Avoid_: Testable module, headless module
+
+**Platform adapter**:
+A thin Quickshell-coupled module that supplies platform state to a pure module and is verified through the smoke check.
+_Avoid_: Wrapper, shim, bridge
+
+**Injected property**:
+A QML property supplied by a production composition module or a test instead of being resolved from platform state.
+_Avoid_: Prop

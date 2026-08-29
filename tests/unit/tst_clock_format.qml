@@ -1,7 +1,7 @@
 import QtQuick
 import QtTest
 
-import qs.Models
+import "../../Models/Clock.js" as ClockFormat
 
 TestCase {
   name: "ClockFormat"

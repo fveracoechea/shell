@@ -4,6 +4,5 @@
     "checkJs": true,
     "noEmit": true,
     "strictNullChecks": true
-  },
-  "exclude": ["Models/Clock.js"]
+  }
 }

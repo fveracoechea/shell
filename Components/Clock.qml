@@ -1,6 +1,7 @@
 import QtQuick
 
 import qs.Models
+import "../Models/Clock.js" as ClockFormat
 
 Text {
   id: root

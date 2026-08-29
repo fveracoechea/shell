@@ -1,5 +1,3 @@
-.pragma library
-
 /**
  * Formats a date for the clock display as `h:mm AP - dddd, MMMM dd`.
  *

@@ -18,8 +18,8 @@ Every command runs through `nix develop`, so tool versions are pinned by
 - The format gate (inside `just check`) fails when a tracked QML file differs
   from its `qmlformat` output. It never modifies files; it prints a per-file
   diff. `just format` is the mutating fixer.
-- `just typecheck` runs `tsc` over all tracked `.js`, `.mjs`, and `.cjs`
-  files through `tsconfig.json`.
+- `just typecheck` runs `tsc` over project `.js`, `.mjs`, and `.cjs` files
+  through `tsconfig.json`.
 - `just lint` runs `qmllint` over tracked QML using the generated import tree
   plus the Quickshell and Qt QML import paths from `QML_IMPORT_PATH`, then
   `shellcheck` over `scripts/*.sh`, then `actionlint` over GitHub workflows.
@@ -46,15 +46,15 @@ nix develop --command bash scripts/build-import-tree.sh
 nix develop --command qmltestrunner -import "$PWD/results/vfs" -input tests/unit/tst_clock_format.qml
 ```
 
-To run one smoke case, copy `scripts/smoke.sh` filtering, or simply read the
-retained log at `results/smoke/<case>.log` after a failure.
+The smoke harness always runs all declared cases. Run `just smoke`, then read
+the retained `results/smoke/<case>.log` for a specific case.
 
 ## Timeouts
 
 - Test suite: hard budget of 10 seconds for the whole `qmltestrunner` run.
   Exceeding it exits with status 124 and a clear message.
-- Smoke check: 30 seconds per case to reach the sentinel or process exit,
-  then up to 5 seconds of graceful IPC shutdown before TERM and KILL.
+- Smoke check: hard deadline of 30 seconds per case, including graceful IPC
+  shutdown. At the deadline, the harness escalates to TERM and KILL.
 
 ## Artifacts
 

@@ -10,18 +10,19 @@ assertion logic to smoke fixtures.
 
 ## Considered Options
 
-- Run everything in Quickshell. Rejected: a live Quickshell runtime gives no
-  deterministic assertions, and its types cannot load in the `qmltestrunner`
-  engine, so pure logic would be untestable headlessly.
-- Run everything in `qmltestrunner`. Rejected: platform coupling (the adapter
-  layer and the composed configuration) would go unverified.
+- Run assertions inside Quickshell. Rejected: `TestCase` bodies execute, but
+  assertion failures produce no QtTest failure output or nonzero exit.
+- Load the complete configuration in `qmltestrunner`. Rejected: the Quickshell
+  plugin cannot load in its foreign QML engine, so platform types are
+  unavailable.
 - Drop the smoke check and rely on manual `just dev`. Rejected: the
   configuration would break without any local signal.
 
 ## Consequences
 
-- `qs.*` imports only resolve through the generated import tree
-  (`results/vfs`), built fresh on each run by `scripts/build-import-tree.sh`.
+- Lint and unit-test `qs.*` imports resolve through `results/vfs`, built fresh
+  on each run by `scripts/build-import-tree.sh`. Live Quickshell owns its
+  runtime import tree.
 - Unit tests depend only on pure modules; platform state reaches them through
   injected properties supplied by adapters in production and by tests.
 - Smoke fixtures that deliberately fail declare a `contract` file and are

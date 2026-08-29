@@ -11,32 +11,17 @@ TestCase {
     id: icon
   }
 
-  /**
-   * Restores the shared view after each test.
-   *
-   * @returns {void}
-   */
   function cleanup() {
     icon.name = "indeterminate_question_box";
     icon.variant = Components.Icon.Variant.Outlined;
     icon.color = Models.Theme.accent;
   }
 
-  /**
-   * Verifies the icon displays its name as the rendered text.
-   *
-   * @returns {void}
-   */
   function test_displays_name() {
     icon.name = "notifications";
     compare(icon.text, "notifications");
   }
 
-  /**
-   * Verifies the variant maps to the font's FILL variable axis.
-   *
-   * @returns {void}
-   */
   function test_variant_maps_to_fill_axis() {
     icon.variant = Components.Icon.Variant.Filled;
     compare(icon.font.variableAxes.FILL, 1);
@@ -45,11 +30,6 @@ TestCase {
     compare(icon.font.variableAxes.FILL, 0);
   }
 
-  /**
-   * Verifies a color override replaces the Theme default.
-   *
-   * @returns {void}
-   */
   function test_color_override_replaces_theme_default() {
     verify(icon.color === Models.Theme.accent);
 

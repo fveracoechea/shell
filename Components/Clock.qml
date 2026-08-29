@@ -6,10 +6,8 @@ import "../Models/Clock.js" as ClockFormat
 Text {
   id: root
 
-  /**
-   * The raw date to display. Production composition binds this from the
-   * Time platform adapter; tests inject fixed dates.
-   */
+  // The raw date to display. Production composition binds this from the
+  // Time platform adapter; tests inject fixed dates.
   property date instant: new Date(NaN)
 
   font.pixelSize: 18

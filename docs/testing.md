@@ -79,7 +79,8 @@ the retained `results/smoke/<case>.log` for a specific case.
   are harness failures, so no harness change is needed to add a case.
 - A pure module has no Quickshell import in its complete import tree, so the
   test suite can load it. Policy goes in pure JavaScript (`Models/*.js`)
-  with JSDoc `@param`/`@returns` on every function.
+  with JSDoc `@param`/`@returns` on every function. QML functions never
+  carry JSDoc; they declare input types with QML parameter annotations.
 - A platform adapter is a thin Quickshell-coupled module that supplies
   platform state to a pure module. Keep platform state here, not in views.
 - An injected property is a QML property supplied by a production

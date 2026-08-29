@@ -20,12 +20,6 @@ Scope {
     root.raiseReferenceError();
   }
 
-  /**
-   * Deliberately raises a ReferenceError after the health sentinel so the
-   * smoke harness can observe a source diagnostic despite a clean exit.
-   *
-   * @returns {never}
-   */
   function raiseReferenceError() {
     return missingSymbol();
   }

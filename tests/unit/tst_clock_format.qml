@@ -6,11 +6,6 @@ import "../../Models/Clock.js" as ClockFormat
 TestCase {
   name: "ClockFormat"
 
-  /**
-   * Supplies fixed dates with their expected display strings.
-   *
-   * @returns {Array<object>} rows of `{tag: string, date: Date, expected: string}`
-   */
   function test_format_data() {
     return [
       {
@@ -36,15 +31,7 @@ TestCase {
     ];
   }
 
-  /**
-   * Verifies the formatter against one worked literal.
-   *
-   * @param {object} data - the row from `test_format_data`
-   * @param {Date} data.date - the fixed input date
-   * @param {string} data.expected - the expected display string
-   * @returns {void}
-   */
-  function test_format(data) {
+  function test_format(data: var) {
     compare(ClockFormat.format(data.date), data.expected);
   }
 }

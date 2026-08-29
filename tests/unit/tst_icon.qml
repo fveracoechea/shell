@@ -12,6 +12,17 @@ TestCase {
   }
 
   /**
+   * Restores the shared view after each test.
+   *
+   * @returns {void}
+   */
+  function cleanup() {
+    icon.name = "indeterminate_question_box";
+    icon.variant = Components.Icon.Variant.Outlined;
+    icon.color = Models.Theme.accent;
+  }
+
+  /**
    * Verifies the icon displays its name as the rendered text.
    *
    * @returns {void}

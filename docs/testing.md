@@ -43,7 +43,7 @@ To run a single unit test file (after the import tree exists; `just test` or
 
 ```sh
 nix develop --command bash scripts/build-import-tree.sh
-nix develop --command qmltestrunner -import "$PWD/results/vfs" -input tests/unit/tst_clock_format.qml
+nix develop --command bash -c 'LC_ALL=C.UTF-8 QT_QPA_PLATFORM=offscreen QT_QUICK_BACKEND=software qmltestrunner -import "$PWD/results/vfs" -input tests/unit/tst_clock_format.qml'
 ```
 
 The smoke harness always runs all declared cases. Run `just smoke`, then read
@@ -55,6 +55,8 @@ the retained `results/smoke/<case>.log` for a specific case.
   Exceeding it exits with status 124 and a clear message.
 - Smoke check: hard deadline of 30 seconds per case, including graceful IPC
   shutdown. At the deadline, the harness escalates to TERM and KILL.
+- Full local verification: advisory budget of 2 minutes. Exceeding it triggers
+  a review of suite scope and runner cost; it is not a hard timeout.
 
 ## Artifacts
 

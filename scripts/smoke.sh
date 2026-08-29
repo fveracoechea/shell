@@ -167,6 +167,9 @@ for fixture_dir in "${fixture_dirs[@]}"; do
   if [ "$verdict" = "pass" ]; then
     printf "pass smoke/%s: contract=%s exit=%s sentinel=%s diagnostics=%s log=%s\n" \
       "$name" "$contract" "$exit_code" "$sentinel_seen" "$diagnostic_count" "$log"
+    if [ -n "$diagnostics" ]; then
+      printf "%s\n" "$diagnostics"
+    fi
   else
     printf "FAIL smoke/%s: contract=%s\n" "$name" "$contract" >&2
     printf "  expected: %s\n" \

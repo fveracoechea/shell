@@ -16,7 +16,7 @@ TestCase {
    * @returns {void}
    */
   function test_displays_injected_date() {
-    clock.date = new Date(2026, 7, 29, 15, 5);
+    clock.instant = new Date(2026, 7, 29, 15, 5);
     compare(clock.text, "3:05 PM - Saturday, August 29");
   }
 
@@ -26,7 +26,7 @@ TestCase {
    * @returns {void}
    */
   function test_updates_text_when_date_changes() {
-    clock.date = new Date(2026, 0, 1, 0, 0);
+    clock.instant = new Date(2026, 0, 1, 0, 0);
     compare(clock.text, "12:00 AM - Thursday, January 01");
   }
 }

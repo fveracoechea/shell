@@ -12,7 +12,7 @@ Scope {
   }
 
   Components.Clock {
-    date: Modules.Time.now
+    instant: Modules.Time.now
   }
 
   Component.onCompleted: {

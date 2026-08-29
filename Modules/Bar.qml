@@ -1,18 +1,18 @@
 import Quickshell
 import QtQuick
+import QtQuick.Layouts
 
-import qs.Components
+import qs.Components as Components
+import qs.Models as Models
+import qs.Modules as Modules
 
 Scope {
-  id: root
-  property string time
-
   Variants {
     model: Quickshell.screens
 
     PanelWindow {
       id: bar
-      color: Theme.background
+      color: Models.Theme.background
 
       anchors {
         top: true
@@ -22,8 +22,18 @@ Scope {
 
       implicitHeight: 40
 
-      Clock {
+      RowLayout {
         anchors.centerIn: parent
+        spacing: 6
+
+        Components.Icon {
+          name: "notifications"
+          variant: Components.Icon.Variant.Filled
+        }
+
+        Components.Clock {
+          instant: Modules.Time.now
+        }
       }
     }
   }

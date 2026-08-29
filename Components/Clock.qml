@@ -1,19 +1,16 @@
 import QtQuick
-import QtQuick.Layouts
 
-import qs.Modules
+import qs.Models as Models
+import "../Models/Clock.js" as ClockFormat
 
-RowLayout {
-  spacing: 6
+Text {
+  id: root
 
-  Icon {
-    name: "notifications"
-    variant: Icon.Variant.Filled
-  }
+  // The raw date to display. Production composition binds this from the
+  // Time platform adapter; tests inject fixed dates.
+  property date instant: new Date(NaN)
 
-  Text {
-    text: Time.time
-    font.pixelSize: 18
-    color: Theme.foreground
-  }
+  font.pixelSize: 18
+  color: Models.Theme.foreground
+  text: ClockFormat.format(root.instant)
 }

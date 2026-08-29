@@ -1,8 +1,7 @@
 pragma Singleton
 import QtQuick
-import Quickshell
 
-Singleton {
+QtObject {
   id: root
 
   property color accent: "#89b4fa"

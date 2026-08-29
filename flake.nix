@@ -27,6 +27,15 @@
             qt6.qtdeclarative
             material-symbols
             typescript
+            just
+            bash
+            git
+            coreutils
+            findutils
+            diffutils
+            gnugrep
+            shellcheck
+            actionlint
           ];
           shellHook = ''
             export QML_IMPORT_PATH="${qs}/lib/qt-6/qml:${qs}/bin:${pkgs.qt6.qtdeclarative}/lib/qt-6/qml"

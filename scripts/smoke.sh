@@ -65,7 +65,8 @@ for fixture_dir in "${fixture_dirs[@]}"; do
   esac
 
   stage="$stage_root/$name"
-  iso="$(mktemp -d "${TMPDIR:-/tmp}/qs-smoke-$name.XXXXXX")"
+  # Keep the runtime path short enough for Quickshell's Unix IPC socket.
+  iso="$(mktemp -d "/tmp/qs-smoke-$name.XXXXXX")"
   mkdir -p "$iso/runtime" "$iso/config" "$iso/cache" "$iso/data" "$iso/state"
 
   rm -rf "$stage"
@@ -113,9 +114,17 @@ for fixture_dir in "${fixture_dirs[@]}"; do
 
   # Shut down gracefully through Quickshell IPC before escalating.
   if kill -0 "$qpid" 2>/dev/null; then
-    XDG_RUNTIME_DIR="$iso/runtime" qs kill --pid "$qpid" >/dev/null 2>&1 || true
     waited=0
     while kill -0 "$qpid" 2>/dev/null && [ "$waited" -lt $((shutdown_grace_seconds * 10)) ]; do
+      env -u WAYLAND_DISPLAY -u DISPLAY -u DBUS_SESSION_BUS_ADDRESS \
+        XDG_RUNTIME_DIR="$iso/runtime" \
+        XDG_CONFIG_HOME="$iso/config" \
+        XDG_CACHE_HOME="$iso/cache" \
+        XDG_DATA_HOME="$iso/data" \
+        XDG_STATE_HOME="$iso/state" \
+        HOME="$iso" \
+        QT_QPA_PLATFORM=offscreen \
+        qs kill --pid "$qpid" >/dev/null 2>&1 || true
       sleep 0.1
       waited=$((waited + 1))
     done
@@ -142,6 +151,7 @@ for fixture_dir in "${fixture_dirs[@]}"; do
     load-failure)
       [ "$exit_code" -ne 0 ] || verdict="fail"
       [ "$sentinel_seen" -eq 0 ] || verdict="fail"
+      [ -n "$diagnostics" ] || verdict="fail"
       ;;
     post-load-error)
       [ "$exit_code" -eq 0 ] || verdict="fail"
@@ -158,7 +168,7 @@ for fixture_dir in "${fixture_dirs[@]}"; do
     printf "  expected: %s\n" \
       "$(case "$contract" in
         healthy) echo "exit=0 sentinel=present no @shell.qml diagnostics" ;;
-        load-failure) echo "exit!=0 sentinel=absent" ;;
+        load-failure) echo "exit!=0 sentinel=absent @shell.qml diagnostics" ;;
         post-load-error) echo "exit=0 sentinel=present @shell.qml diagnostics" ;;
       esac)" >&2
     printf "  observed: exit=%s sentinel=%s diagnostics=%s\n" \

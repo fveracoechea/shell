@@ -1,6 +1,6 @@
 import QtQuick
 
-import qs.Models
+import qs.Models as Models
 
 Text {
   id: root
@@ -22,6 +22,6 @@ Text {
       opsz: 50
     })
 
-  color: Theme.accent
+  color: Models.Theme.accent
   text: root.name
 }

@@ -1,13 +1,13 @@
 import QtQuick
 import QtTest
 
-import qs.Components
-import qs.Models
+import qs.Components as Components
+import qs.Models as Models
 
 TestCase {
   name: "Icon"
 
-  Icon {
+  Components.Icon {
     id: icon
   }
 
@@ -27,10 +27,10 @@ TestCase {
    * @returns {void}
    */
   function test_variant_maps_to_fill_axis() {
-    icon.variant = Icon.Variant.Filled;
+    icon.variant = Components.Icon.Variant.Filled;
     compare(icon.font.variableAxes.FILL, 1);
 
-    icon.variant = Icon.Variant.Outlined;
+    icon.variant = Components.Icon.Variant.Outlined;
     compare(icon.font.variableAxes.FILL, 0);
   }
 
@@ -40,7 +40,7 @@ TestCase {
    * @returns {void}
    */
   function test_color_override_replaces_theme_default() {
-    verify(icon.color === Theme.accent);
+    verify(icon.color === Models.Theme.accent);
 
     icon.color = "#ff0000";
     compare(icon.color, "#ff0000");

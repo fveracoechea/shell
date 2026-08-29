@@ -1,19 +1,18 @@
 import QtQuick
 import Quickshell
 
-import qs.Components
-import qs.Models
-import qs.Modules
+import qs.Components as Components
+import qs.Modules as Modules
 
 Scope {
   id: root
 
-  Icon {
+  Components.Icon {
     name: "notifications"
   }
 
-  Clock {
-    date: Time.now
+  Components.Clock {
+    date: Modules.Time.now
   }
 
   Component.onCompleted: {

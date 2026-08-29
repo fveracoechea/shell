@@ -1,6 +1,6 @@
 import QtQuick
 
-import qs.Models
+import qs.Models as Models
 import "../Models/Clock.js" as ClockFormat
 
 Text {
@@ -10,9 +10,9 @@ Text {
    * The raw date to display. Production composition binds this from the
    * Time platform adapter; tests inject fixed dates.
    */
-  property date date: new Date()
+  property date date: new Date(NaN)
 
   font.pixelSize: 18
-  color: Theme.foreground
+  color: Models.Theme.foreground
   text: ClockFormat.format(root.date)
 }

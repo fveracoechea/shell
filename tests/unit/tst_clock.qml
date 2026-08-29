@@ -1,12 +1,12 @@
 import QtQuick
 import QtTest
 
-import qs.Components
+import qs.Components as Components
 
 TestCase {
   name: "ClockView"
 
-  Clock {
+  Components.Clock {
     id: clock
   }
 

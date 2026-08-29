@@ -2,9 +2,9 @@ import Quickshell
 import QtQuick
 import QtQuick.Layouts
 
-import qs.Components
-import qs.Models
-import qs.Modules
+import qs.Components as Components
+import qs.Models as Models
+import qs.Modules as Modules
 
 Scope {
   Variants {
@@ -12,7 +12,7 @@ Scope {
 
     PanelWindow {
       id: bar
-      color: Theme.background
+      color: Models.Theme.background
 
       anchors {
         top: true
@@ -26,13 +26,13 @@ Scope {
         anchors.centerIn: parent
         spacing: 6
 
-        Icon {
+        Components.Icon {
           name: "notifications"
-          variant: Icon.Variant.Filled
+          variant: Components.Icon.Variant.Filled
         }
 
-        Clock {
-          date: Time.now
+        Components.Clock {
+          date: Modules.Time.now
         }
       }
     }

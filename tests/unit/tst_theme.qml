@@ -1,7 +1,7 @@
 import QtQuick
 import QtTest
 
-import qs.Models
+import qs.Models as Models
 
 TestCase {
   name: "Theme"
@@ -13,8 +13,8 @@ TestCase {
    * @returns {void}
    */
   function test_loads_pure_singleton() {
-    verify(Qt.isQtObject(Theme));
-    verify(Theme.accent !== undefined);
-    verify(Theme.background !== undefined);
+    verify(Qt.isQtObject(Models.Theme));
+    verify(Models.Theme.accent !== undefined);
+    verify(Models.Theme.background !== undefined);
   }
 }

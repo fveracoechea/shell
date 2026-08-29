@@ -1,0 +1,4 @@
+module qs.Models
+
+singleton Theme 1.0 Theme.qml
+ClockFormat 1.0 Clock.js

@@ -1,13 +1,14 @@
 pragma Singleton
 
 import Quickshell
-import QtQuick
 
 Singleton {
   id: root
-  readonly property string time: {
-    Qt.formatDateTime(clock.date, "h:mm AP - dddd, MMMM dd");
-  }
+
+  /**
+   * The raw platform date. Policy-free: consumers own normalization.
+   */
+  readonly property date now: clock.date
 
   SystemClock {
     id: clock

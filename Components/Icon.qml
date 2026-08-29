@@ -1,5 +1,6 @@
 import QtQuick
-import qs.Modules
+
+import qs.Models
 
 Text {
   id: root

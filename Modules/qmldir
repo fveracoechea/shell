@@ -1,3 +1,4 @@
+module qs.Modules
+
 Bar 1.0 Bar.qml
 singleton Time 1.0 Time.qml
-singleton Theme 1.0 Theme.qml

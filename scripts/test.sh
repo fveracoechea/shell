@@ -6,13 +6,16 @@
 set -uo pipefail
 
 root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-cd "$root"
+cd "$root" || exit 1
 
 budget_seconds=10
 vfs=results/vfs
 junit=results/junit.xml
 
-scripts/build-import-tree.sh "$vfs" >/dev/null
+if ! scripts/build-import-tree.sh "$vfs" >/dev/null; then
+  echo "Failed to build the QML import tree." >&2
+  exit 1
+fi
 mkdir -p results
 rm -f "$junit"
 

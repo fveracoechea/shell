@@ -5,7 +5,7 @@
 set -uo pipefail
 
 root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-cd "$root"
+cd "$root" || exit 1
 
 step() {
   printf '\n== %s ==\n' "$1"
@@ -18,7 +18,7 @@ step() {
   fi
 }
 
-step "Format gate" scripts/format-check.sh
+step "Format gate" scripts/format-gate.sh
 step "Type check" scripts/typecheck.sh
 step "Lint" scripts/lint.sh
 step "Test suite" scripts/test.sh

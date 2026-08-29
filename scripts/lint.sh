@@ -43,4 +43,6 @@ if [ "${#skipped[@]}" -gt 0 ]; then
 fi
 
 qmllint "${flags[@]}" "${files[@]}"
+shellcheck scripts/*.sh
+actionlint
 echo "Lint passed."

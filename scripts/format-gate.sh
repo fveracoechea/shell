@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
-# Read-only format gate: fails when a tracked QML file differs from its
+# Format gate: fails when a tracked QML file differs from its
 # `qmlformat` output. Prints the file name and diff for every offender.
 # The mutating fixer is `just format`.
 set -uo pipefail
 
 root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-cd "$root"
+cd "$root" || exit 1
 
 work="$(mktemp -d)"
 trap 'rm -rf "$work"' EXIT

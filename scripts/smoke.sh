@@ -13,7 +13,7 @@
 set -uo pipefail
 
 root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-cd "$root"
+cd "$root" || exit 1
 
 sentinel="SHELL_HEALTHY"
 timeout_seconds=30
@@ -37,7 +37,10 @@ cleanup() {
 }
 trap cleanup EXIT
 
-scripts/build-import-tree.sh "$vfs" >/dev/null
+if ! scripts/build-import-tree.sh "$vfs" >/dev/null; then
+  echo "Failed to build the QML import tree." >&2
+  exit 1
+fi
 mkdir -p "$log_dir" "$stage_root"
 
 failures=0
@@ -68,6 +71,15 @@ for fixture_dir in "${fixture_dirs[@]}"; do
   # Keep the runtime path short enough for Quickshell's Unix IPC socket.
   iso="$(mktemp -d "/tmp/qs-smoke-$name.XXXXXX")"
   mkdir -p "$iso/runtime" "$iso/config" "$iso/cache" "$iso/data" "$iso/state"
+  private_env=(
+    env -u WAYLAND_DISPLAY -u DISPLAY -u DBUS_SESSION_BUS_ADDRESS
+    XDG_RUNTIME_DIR="$iso/runtime"
+    XDG_CONFIG_HOME="$iso/config"
+    XDG_CACHE_HOME="$iso/cache"
+    XDG_DATA_HOME="$iso/data"
+    XDG_STATE_HOME="$iso/state"
+    HOME="$iso"
+  )
 
   rm -rf "$stage"
   mkdir -p "$stage"
@@ -81,13 +93,7 @@ for fixture_dir in "${fixture_dirs[@]}"; do
   current_stage="$stage"
   current_iso="$iso"
 
-  env -u WAYLAND_DISPLAY -u DISPLAY -u DBUS_SESSION_BUS_ADDRESS \
-    XDG_RUNTIME_DIR="$iso/runtime" \
-    XDG_CONFIG_HOME="$iso/config" \
-    XDG_CACHE_HOME="$iso/cache" \
-    XDG_DATA_HOME="$iso/data" \
-    XDG_STATE_HOME="$iso/state" \
-    HOME="$iso" \
+  "${private_env[@]}" \
     QT_QPA_PLATFORM=offscreen \
     qs -p "$stage/shell.qml" --no-color --log-times >>"$log" 2>&1 &
   current_pid=$!
@@ -114,23 +120,21 @@ for fixture_dir in "${fixture_dirs[@]}"; do
 
   # Shut down gracefully through Quickshell IPC before escalating.
   if kill -0 "$qpid" 2>/dev/null; then
-    waited=0
-    while kill -0 "$qpid" 2>/dev/null && [ "$waited" -lt $((shutdown_grace_seconds * 10)) ]; do
-      env -u WAYLAND_DISPLAY -u DISPLAY -u DBUS_SESSION_BUS_ADDRESS \
-        XDG_RUNTIME_DIR="$iso/runtime" \
-        XDG_CONFIG_HOME="$iso/config" \
-        XDG_CACHE_HOME="$iso/cache" \
-        XDG_DATA_HOME="$iso/data" \
-        XDG_STATE_HOME="$iso/state" \
-        HOME="$iso" \
+    shutdown_deadline=$((SECONDS + shutdown_grace_seconds))
+    if [ "$shutdown_deadline" -gt "$deadline" ]; then
+      shutdown_deadline="$deadline"
+    fi
+    while kill -0 "$qpid" 2>/dev/null && [ "$SECONDS" -lt "$shutdown_deadline" ]; do
+      "${private_env[@]}" \
         QT_QPA_PLATFORM=offscreen \
         qs kill --pid "$qpid" >/dev/null 2>&1 || true
       sleep 0.1
-      waited=$((waited + 1))
     done
     if kill -0 "$qpid" 2>/dev/null; then
       kill -TERM "$qpid" 2>/dev/null || true
-      sleep 1
+      if [ "$SECONDS" -lt "$deadline" ]; then
+        sleep 0.1
+      fi
       kill -KILL "$qpid" 2>/dev/null || true
     fi
   fi

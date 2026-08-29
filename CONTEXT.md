@@ -8,11 +8,11 @@ This context defines the language used to develop and verify the Quickshell conf
 The command surface and guarantees that let a coding agent verify a change locally and in CI.
 
 **Verification command**:
-The single read-only command that checks formatting, types, lint, deterministic tests, and the smoke check.
+The single command that checks formatting, types, lint, deterministic tests, and the smoke check without modifying tracked source files.
 _Avoid_: Verify, full test
 
 **Format gate**:
-The read-only check that files already have the required format. The separate format command is the fixer.
+The check that files already have the required format without modifying tracked source files. The separate format command is the fixer.
 _Avoid_: Format check
 
 **Test suite**:

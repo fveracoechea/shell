@@ -4,5 +4,6 @@
     "checkJs": true,
     "noEmit": true,
     "strictNullChecks": true
-  }
+  },
+  "exclude": ["docs"]
 }

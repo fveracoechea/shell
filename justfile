@@ -25,6 +25,10 @@ test:
 smoke:
   nix develop --command bash scripts/smoke.sh
 
+# Regenerate the editor QML import configuration (.qmlls.ini)
+lsp:
+  nix develop --command bash scripts/lsp-setup.sh
+
 # Run the full verification: format gate, type check, lint, tests, smoke
 check:
   nix develop --command bash scripts/check.sh

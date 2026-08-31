@@ -26,6 +26,8 @@
             qs
             qt6.qtdeclarative
             material-symbols
+            inter
+            jetbrains-mono
             typescript
             just
             bash

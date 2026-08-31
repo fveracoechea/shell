@@ -2,3 +2,5 @@ module qs.Components
 
 Clock 1.0 Clock.qml
 Icon 1.0 Icon.qml
+Meter 1.0 Meter.qml
+SectionLabel 1.0 SectionLabel.qml

@@ -14,4 +14,14 @@ declare namespace Qt {
    * @returns the formatted display string
    */
   function formatDateTime(date: Date, format: string): string;
+
+  /**
+   * Formats a date with the given Qt date format pattern in the process
+   * default locale.
+   *
+   * @param date - the date to format
+   * @param format - the Qt date format pattern
+   * @returns the formatted display string
+   */
+  function formatDate(date: Date, format: string): string;
 }

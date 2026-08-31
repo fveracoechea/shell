@@ -15,6 +15,10 @@ _Avoid_: Verify, full test
 The check that files already have the required format without modifying tracked source files. The separate format command is the fixer.
 _Avoid_: Format check
 
+**Compile gate**:
+The check that compiles every production QML document through the engine's ahead-of-time compiler, so engine compile-stage load failures that lint cannot see, such as duplicate signal handlers, fail before any runtime launch.
+_Avoid_: Bytecode check
+
 **Test suite**:
 The deterministic QtQuick Test suite that exercises code with no Quickshell runtime dependency.
 _Avoid_: Unit runner

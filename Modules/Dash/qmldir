@@ -1,0 +1,7 @@
+module qs.Modules.Dash
+
+CalendarCard 1.0 CalendarCard.qml
+ClockCard 1.0 ClockCard.qml
+Dashboard 1.0 Dashboard.qml
+SystemCard 1.0 SystemCard.qml
+WeatherCard 1.0 WeatherCard.qml

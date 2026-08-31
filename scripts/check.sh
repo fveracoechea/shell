@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
-# The verification command: runs the format gate, type check, lint,
-# deterministic test suite, and smoke check in cheapest-first order and
-# fails fast. Composes the other scripts; it owns no harness logic itself.
+# The verification command: runs the format gate, type check, lint, engine
+# compile gate, deterministic test suite, and smoke check in cheapest-first
+# order and fails fast. Composes the other scripts; it owns no harness logic
+# itself.
 set -uo pipefail
 
 root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
@@ -21,6 +22,7 @@ step() {
 step "Format gate" scripts/format-gate.sh
 step "Type check" scripts/typecheck.sh
 step "Lint" scripts/lint.sh
+step "Compile" scripts/compile.sh
 step "Test suite" scripts/test.sh
 step "Smoke check" scripts/smoke.sh
 

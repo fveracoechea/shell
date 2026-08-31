@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
-# Format gate: fails when a tracked QML file differs from its
+# Format gate: fails when a production QML file differs from its
 # `qmlformat` output. Prints the file name and diff for every offender.
-# The mutating fixer is `just format`.
+# The mutating fixer is `just format`. Untracked files are checked too, so
+# the gate verifies the whole working tree, not only committed files.
 set -uo pipefail
 
 root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
@@ -24,7 +25,7 @@ while IFS= read -r -d "" file; do
     cat "$work/diff"
     failures=$((failures + 1))
   fi
-done < <(git ls-files -z "*.qml")
+done < <(git ls-files -z --cached --others --exclude-standard -- "*.qml")
 
 if [ "$failures" -gt 0 ]; then
   echo "Format gate failed ($failures file(s)). Run 'just format' to fix." >&2

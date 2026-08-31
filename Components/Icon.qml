@@ -12,8 +12,9 @@ Text {
 
   property string name: "indeterminate_question_box"
   property int variant: Qt.enumStringToValue(Icon.Variant, 'Outlined')
+  property int size: 24
 
-  font.pixelSize: 24
+  font.pixelSize: root.size
   font.family: "Material Symbols Rounded"
   font.variableAxes: ({
       FILL: root.variant,

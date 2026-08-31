@@ -7,7 +7,7 @@ dev:
 
 # Rewrite QML files into the required format (mutating fixer)
 format:
-  nix develop --command bash -c 'git ls-files -z "*.qml" | xargs -0 qmlformat --inplace'
+  nix develop --command bash -c 'git ls-files -z --cached --others --exclude-standard -- "*.qml" | xargs -0 qmlformat --inplace'
 
 # Typecheck production and test JavaScript
 typecheck:
@@ -16,6 +16,10 @@ typecheck:
 # Lint production and test QML against the generated import tree
 lint:
   nix develop --command bash scripts/lint.sh
+
+# Compile every production QML document through the engine compiler
+compile:
+  nix develop --command bash scripts/compile.sh
 
 # Run the deterministic QtQuick Test suite
 test:
@@ -29,6 +33,6 @@ smoke:
 lsp:
   nix develop --command bash scripts/lsp-setup.sh
 
-# Run the full verification: format gate, type check, lint, tests, smoke
+# Run the full verification: format gate, type check, lint, compile, tests, smoke
 check:
   nix develop --command bash scripts/check.sh

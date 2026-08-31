@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 # Runs qmllint over production QML and unit tests using the generated import
-# tree. Smoke fixtures are verified by the smoke check at runtime; deliberate
+# tree, including untracked files so the whole working tree is verified.
+# Smoke fixtures are verified by the smoke check at runtime; deliberate
 # negative fixtures are excluded, and only fixtures whose contract is
 # `healthy` are linted.
 set -euo pipefail
@@ -36,7 +37,7 @@ while IFS= read -r -d "" file; do
     fi
   fi
   files+=("$file")
-done < <(git ls-files -z "*.qml")
+done < <(git ls-files -z --cached --others --exclude-standard -- "*.qml")
 
 if [ "${#skipped[@]}" -gt 0 ]; then
   printf "Skipping deliberate smoke fixtures: %s\n" "${skipped[*]}" >&2

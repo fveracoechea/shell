@@ -1,28 +1,36 @@
 # Testing
 
 This document records the feedback contract that coding agents use to verify
-changes. The vocabulary here (verification command, test suite, smoke check,
-pure module, platform adapter, injected property, runner boundary) is defined
-in [CONTEXT.md](../CONTEXT.md). This document describes the commands as they
-exist in the scripts; it never describes aspiration.
+changes. The vocabulary here (verification command, compile gate, test suite,
+smoke check, pure module, platform adapter, injected property, runner
+boundary) is defined in [CONTEXT.md](../CONTEXT.md). This document describes
+the commands as they exist in the scripts; it never describes aspiration.
 
 ## Command guarantees
 
 Every command runs through `nix develop`, so tool versions are pinned by
 `flake.nix`. All recipes are defined in the `justfile`.
 
-- `just check` runs the format gate, type check, lint, test suite, and smoke
-  check in cheapest-first order. It fails fast: it stops at the first gate
-  that fails and exits with that gate's status. It prints `== check failed ==`
-  with the failed gate name, or `== check passed ==` on success.
-- The format gate (inside `just check`) fails when a tracked QML file differs
-  from its `qmlformat` output. It never modifies files; it prints a per-file
-  diff. `just format` is the mutating fixer.
+- `just check` runs the format gate, type check, lint, compile gate, test
+  suite, and smoke check in cheapest-first order. It fails fast: it stops at
+  the first gate that fails and exits with that gate's status. It prints
+  `== check failed ==` with the failed gate name, or `== check passed ==` on
+  success.
+- The format gate (inside `just check`) fails when a tracked or untracked QML
+  file differs from its `qmlformat` output. It never modifies files; it
+  prints a per-file diff. `just format` is the mutating fixer.
 - `just typecheck` runs `tsc` over project `.js`, `.mjs`, and `.cjs` files
   through `tsconfig.json`.
-- `just lint` runs `qmllint` over tracked QML using the generated import tree
-  plus the Quickshell and Qt QML import paths from `QML_IMPORT_PATH`, then
-  `shellcheck` over `scripts/*.sh`, then `actionlint` over GitHub workflows.
+- `just lint` runs `qmllint` over tracked and untracked QML using the
+  generated import tree plus the Quickshell and Qt QML import paths from
+  `QML_IMPORT_PATH`, then `shellcheck` over `scripts/*.sh`, then `actionlint`
+  over GitHub workflows.
+- `just compile` runs the engine compile gate: every production QML document
+  (tracked and untracked, excluding `tests/`) is compiled through
+  `qmlcachegen`. This catches engine compile-stage load failures that
+  `qmllint` does not report, such as duplicate signal handlers. It is the
+  load-failure signal for window surfaces, because the offscreen smoke
+  harness has no window backend and cannot instantiate them.
 - `just test` runs `qmltestrunner` over `tests/unit` with no Quickshell,
   display, DBus, GPU, or home dependency. It uses the offscreen platform and
   software rendering, so it is deterministic. It preserves the QtTest exit
@@ -65,6 +73,8 @@ the retained `results/smoke/<case>.log` for a specific case.
   retained on every exit.
 - `results/vfs/`: generated QML import tree exposing `qs.*` module paths as
   symlinks. Generated on every run; never edit it.
+- `results/compile/`: generated ahead-of-time compilation outputs from the
+  compile gate; the compile verdict is the gate's exit status.
 - `results/` is not tracked. CI uploads it only on failure.
 
 ## Directory and extension rules
@@ -77,6 +87,13 @@ the retained `results/smoke/<case>.log` for a specific case.
   one-word `contract` file (`healthy`, `load-failure`, or `post-load-error`).
   The harness discovers every case directory; unknown or missing contracts
   are harness failures, so no harness change is needed to add a case.
+- A `healthy` smoke fixture should instantiate as much real composed QML as
+  the offscreen harness allows. The composed fixture instantiates the full
+  dashboard composition against local Feature Services and deterministic
+  weather inputs, so the smoke check stays network-free; window surfaces
+  cannot be instantiated offscreen and are instead covered by the compile
+  gate. A minimal fixture that only touches components is allowed but
+  should not be the only `healthy` fixture for a new surface area.
 - A pure module has no Quickshell import in its complete import tree, so the
   test suite can load it. Policy goes in pure JavaScript (`Models/*.js`)
   with JSDoc `@param`/`@returns` on every function. QML functions never
@@ -135,5 +152,27 @@ evidence:
    `git diff` was clean.
 6. Recovery: `just format`, `just lint`, `just typecheck`, `just test`,
    `just smoke`, and `just check` all passed again.
+
+No deliberate failure is committed.
+
+## Compile gate and composed fixture red-green proof
+
+The compile gate and the composed smoke fixture were proven against the
+failure class that motivated them (duplicate signal handlers make a QML
+document fail to compile, and the offscreen harness cannot instantiate
+window surfaces):
+
+1. Baseline: `just compile` and `just smoke` passed with the composed
+   fixture present.
+2. Mutation: a second identical `onOpenChanged` handler was added to
+   `Modules/DropdownSurface.qml`. `just compile` failed with
+   `Property value set multiple times`, and `just smoke` still passed,
+   which is exactly the gap the compile gate closes.
+3. Restoration: the file was restored and `just compile` passed again.
+4. Composition mutation: two duplicate signal handlers were added to
+   `Modules/Dash/Dashboard.qml`. `just smoke` failed the `composed` case
+   (healthy contract, no sentinel, retained log at
+   `results/smoke/composed.log`).
+5. Restoration: `just smoke` passed again (4 case(s)).
 
 No deliberate failure is committed.

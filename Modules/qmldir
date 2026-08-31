@@ -1,4 +1,10 @@
 module qs.Modules
 
 Bar 1.0 Bar.qml
+SurfaceManager 1.0 SurfaceManager.qml
+BarSurface 1.0 BarSurface.qml
+DropdownSurface 1.0 DropdownSurface.qml
 singleton Time 1.0 Time.qml
+singleton Weather 1.0 Weather.qml
+singleton System 1.0 System.qml
+singleton Identity 1.0 Identity.qml

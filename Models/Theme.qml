@@ -13,4 +13,12 @@ QtObject {
   property color red: "#f38ba8"
   property color green: "#a6e3a1"
   property color yellow: "#f9e2af"
+
+  // Surface roles for layered compositions: cards sit on panels, panels on
+  // the screen. surface0 fills cards on a background panel, surface1 draws
+  // the panel border, overlay0 and subtext0 are muted text roles.
+  property color surface0: "#313244"
+  property color surface1: "#45475a"
+  property color overlay0: "#6c7086"
+  property color subtext0: "#a6adc8"
 }

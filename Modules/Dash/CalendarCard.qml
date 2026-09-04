@@ -24,18 +24,25 @@ Rectangle {
   readonly property int viewMonth: viewDate.getMonth()
   readonly property int cellSize: 44
   readonly property int cellSpacing: 4
-  readonly property int todayDiameter: cellSize + 12
+  readonly property int todayDiameter: 30
   readonly property int gridWidth: 7 * cellSize + 6 * cellSpacing
   readonly property var monthCells: Calendar.buildMonthCells(root.viewYear, root.viewMonth, root.now)
 
   implicitWidth: gridWidth + 2 * 16
-  implicitHeight: 16 + navRow.height + 8 + weekdayRow.height + 4 + monthGrid.height + 16
+  implicitHeight: content.implicitHeight + 32
 
   function navigate(delta: int): void {
+    if (monthSlide.running) {
+      monthSlide.complete();
+    }
     monthSlide.nextViewYear = viewDate.getFullYear();
     monthSlide.nextViewMonth = viewDate.getMonth() + delta;
     monthSlide.dir = delta > 0 ? 1 : -1;
     monthSlide.restart();
+  }
+
+  function navigateYear(delta: int): void {
+    navigate(delta * 12);
   }
 
   function returnToToday(): void {
@@ -44,8 +51,8 @@ Rectangle {
     }
   }
 
-  color: Models.Theme.surface0
-  radius: 12
+  color: Models.Theme.surface
+  radius: Models.Theme.radius
 
   Column {
     id: content
@@ -67,8 +74,7 @@ Rectangle {
       Text {
         id: monthLabel
 
-        anchors.left: parent.left
-        anchors.verticalCenter: parent.verticalCenter
+        anchors.centerIn: parent
         text: Calendar.monthTitle(root.viewDate.getFullYear(), root.viewDate.getMonth())
         font.pixelSize: 14
         font.weight: Font.Medium
@@ -82,10 +88,34 @@ Rectangle {
       }
 
       Item {
+        id: previousYear
+
+        anchors.left: parent.left
+        width: 28
+        height: 28
+
+        Components.Icon {
+          anchors.centerIn: parent
+          name: "keyboard_double_arrow_left"
+          size: 20
+          color: previousYearArea.containsMouse ? Models.Theme.foreground : Models.Theme.muted
+        }
+
+        MouseArea {
+          id: previousYearArea
+
+          anchors.fill: parent
+          hoverEnabled: true
+          cursorShape: Qt.PointingHandCursor
+          onClicked: root.navigateYear(-1)
+        }
+      }
+
+      Item {
         id: previousMonth
 
-        anchors.right: nextMonth.left
-        anchors.rightMargin: 4
+        anchors.left: previousYear.right
+        anchors.leftMargin: 4
         width: 28
         height: 28
 
@@ -93,7 +123,7 @@ Rectangle {
           anchors.centerIn: parent
           name: "chevron_left"
           size: 20
-          color: previousArea.containsMouse ? Models.Theme.foreground : Models.Theme.overlay0
+          color: previousArea.containsMouse ? Models.Theme.foreground : Models.Theme.muted
         }
 
         MouseArea {
@@ -109,7 +139,8 @@ Rectangle {
       Item {
         id: nextMonth
 
-        anchors.right: parent.right
+        anchors.right: nextYear.left
+        anchors.rightMargin: 4
         width: 28
         height: 28
 
@@ -117,7 +148,7 @@ Rectangle {
           anchors.centerIn: parent
           name: "chevron_right"
           size: 20
-          color: nextArea.containsMouse ? Models.Theme.foreground : Models.Theme.overlay0
+          color: nextArea.containsMouse ? Models.Theme.foreground : Models.Theme.muted
         }
 
         MouseArea {
@@ -127,6 +158,30 @@ Rectangle {
           hoverEnabled: true
           cursorShape: Qt.PointingHandCursor
           onClicked: root.navigate(1)
+        }
+      }
+
+      Item {
+        id: nextYear
+
+        anchors.right: parent.right
+        width: 28
+        height: 28
+
+        Components.Icon {
+          anchors.centerIn: parent
+          name: "keyboard_double_arrow_right"
+          size: 20
+          color: nextYearArea.containsMouse ? Models.Theme.foreground : Models.Theme.muted
+        }
+
+        MouseArea {
+          id: nextYearArea
+
+          anchors.fill: parent
+          hoverEnabled: true
+          cursorShape: Qt.PointingHandCursor
+          onClicked: root.navigateYear(1)
         }
       }
     }
@@ -149,7 +204,7 @@ Rectangle {
           text: weekdayLabel.modelData
           font.pixelSize: 10
           font.letterSpacing: 1
-          color: Models.Theme.overlay0
+          color: Models.Theme.muted
         }
       }
     }
@@ -188,7 +243,7 @@ Rectangle {
             text: cell.modelData.dayOfMonth
             font.pixelSize: 12
             font.family: "JetBrains Mono"
-            color: cell.modelData.isToday ? Models.Theme.background : cell.modelData.isWeekend ? Models.Theme.subtext0 : Models.Theme.foreground
+            color: cell.modelData.isToday ? Models.Theme.background : cell.modelData.isWeekend ? Models.Theme.muted : Models.Theme.foreground
             opacity: cell.modelData.inMonth ? 1 : 0.4
           }
         }

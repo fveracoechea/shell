@@ -35,10 +35,31 @@
         "url": "https://git.outfoxxed.me/outfoxxed/quickshell"
       }
     },
+    "quickshell-mcp": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1788119217,
+        "narHash": "sha256-OQ+FCPoQyN+aNSr0OxY86mTQqodICHOc6XlkU+VzG18=",
+        "owner": "franklinnolasco7",
+        "repo": "quickshell-mcp",
+        "rev": "3c37200de0a3fb2b87b259ac3964845d2e22eb9c",
+        "type": "github"
+      },
+      "original": {
+        "owner": "franklinnolasco7",
+        "repo": "quickshell-mcp",
+        "type": "github"
+      }
+    },
     "root": {
       "inputs": {
         "nixpkgs": "nixpkgs",
         "quickshell": "quickshell",
+        "quickshell-mcp": "quickshell-mcp",
         "systems": "systems"
       }
     },

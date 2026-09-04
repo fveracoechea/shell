@@ -37,6 +37,27 @@ function parseKernelVersion(text) {
 }
 
 /**
+ * Extracts the version from `hyprctl version -j` output.
+ *
+ * @param {string|null} text - raw command output
+ * @returns {string} version without a leading `v`, or "" when absent
+ */
+function parseHyprlandVersion(text) {
+  if (typeof text !== "string") {
+    return "";
+  }
+  try {
+    const payload = JSON.parse(text);
+    if (payload === null || typeof payload !== "object" || typeof payload.version !== "string") {
+      return "";
+    }
+    return payload.version.trim().replace(/^v/, "");
+  } catch (error) {
+    return "";
+  }
+}
+
+/**
  * Normalizes `/proc/meminfo` contents.
  *
  * @param {string|null} text - raw file contents
@@ -52,7 +73,7 @@ function parseMeminfo(text) {
   return {
     totalKb: totalKb,
     availableKb: availableKb,
-    usedFraction: clamp((totalKb - availableKb) / totalKb)
+    usedFraction: clamp((totalKb - availableKb) / totalKb),
   };
 }
 
@@ -87,7 +108,7 @@ function parseCpuTicks(text) {
     return null;
   }
   const values = line[1].trim().split(/\s+/).map(Number);
-  if (values.length < 8 || values.some(v => !Number.isFinite(v) || v < 0)) {
+  if (values.length < 8 || values.some((v) => !Number.isFinite(v) || v < 0)) {
     return null;
   }
   return values.slice(0, 8);
@@ -110,7 +131,7 @@ function cpuFraction(prev, next) {
   const idlePrev = prev[3] + prev[4];
   const idleNext = next[3] + next[4];
   const deltaTotal = totalNext - totalPrev;
-  const deltaBusy = (totalNext - idleNext) - (totalPrev - idlePrev);
+  const deltaBusy = totalNext - idleNext - (totalPrev - idlePrev);
   if (deltaTotal <= 0 || deltaBusy <= 0) {
     return 0;
   }
@@ -162,7 +183,7 @@ function parseDf(text) {
   return {
     totalKb: totalKb,
     usedKb: usedKb,
-    usedFraction: clamp(usedKb / totalKb)
+    usedFraction: clamp(usedKb / totalKb),
   };
 }
 
@@ -230,6 +251,32 @@ function describeUptime(seconds) {
     return `${hours}h ${minutes}m`;
   }
   return `${minutes}m`;
+}
+
+/**
+ * Formats used and total kibibytes as a compact pair.
+ *
+ * @param {number} usedKb - used capacity in KiB
+ * @param {number} totalKb - total capacity in KiB
+ * @returns {string} display string such as "4.2 / 15.6 GiB", or "--"
+ */
+function formatKibPair(usedKb, totalKb) {
+  if (!Number.isFinite(usedKb) || !Number.isFinite(totalKb) || usedKb < 0 || totalKb <= 0) {
+    return "--";
+  }
+  const divisor = totalKb >= 1024 * 1024 ? 1024 * 1024 : 1024;
+  const unit = divisor === 1024 * 1024 ? "GiB" : "MiB";
+  return `${formatDecimal(usedKb / divisor)} / ${formatDecimal(totalKb / divisor)} ${unit}`;
+}
+
+/**
+ * Formats a capacity value with at most one decimal place.
+ *
+ * @param {number} value - capacity in the selected unit
+ * @returns {string} compact decimal value
+ */
+function formatDecimal(value) {
+  return value >= 100 ? String(Math.round(value)) : value.toFixed(1);
 }
 
 /**

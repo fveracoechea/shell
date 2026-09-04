@@ -6,6 +6,10 @@
       url = "git+https://git.outfoxxed.me/outfoxxed/quickshell?ref=refs/tags/v0.3.1";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    quickshell-mcp = {
+      url = "github:franklinnolasco7/quickshell-mcp";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs = {
@@ -13,6 +17,7 @@
     nixpkgs,
     systems,
     quickshell,
+    quickshell-mcp,
   }: let
     forAllSystems = nixpkgs.lib.genAttrs (import systems);
   in {
@@ -20,10 +25,12 @@
       system: let
         pkgs = import nixpkgs {inherit system;};
         qs = quickshell.packages.${system}.default;
+        qsMcp = quickshell-mcp.packages.${system}.default;
       in {
         default = pkgs.mkShell {
           packages = with pkgs; [
             qs
+            qsMcp
             qt6.qtdeclarative
             material-symbols
             inter

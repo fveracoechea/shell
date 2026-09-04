@@ -3,92 +3,78 @@ import QtQuick
 import qs.Models as Models
 import "../../Models/Clock.js" as ClockFormat
 
-// The optional large clock card. Stacked hero (hour over minute, mono
-// semibold) with a seconds progress line, or a horizontal hero with the
-// time left and the date right in the single-column fallback. Absorbs the
-// remaining width of its row.
+// Optional large clock. The card stays visually still while the surrounding
+// dropdown morphs, with only the seconds indicator updating in place.
 Rectangle {
   id: root
 
-  // The bar date at Minutes precision drives the hero text.
   property date now: new Date(NaN)
-
-  // The precise Seconds date drives the seconds line.
   property date preciseNow: new Date(NaN)
-
-  // Stacked hero when true, horizontal hero when false.
   property bool stacked: true
 
-  readonly property bool validNow: !isNaN(root.now.getTime())
-  readonly property var hero: ClockFormat.heroTime(root.now)
-  readonly property real secondsFraction: validNow && !isNaN(preciseNow.getTime()) ? root.preciseNow.getSeconds() / 60 : 0
+  readonly property bool validNow: !isNaN(now.getTime())
+  readonly property var hero: ClockFormat.heroTime(now)
+  readonly property real secondsFraction: validNow && !isNaN(preciseNow.getTime()) ? preciseNow.getSeconds() / 60 : 0
 
   implicitWidth: 240
-  implicitHeight: 160
+  implicitHeight: stacked ? 180 : 118
 
-  color: Models.Theme.surface0
-  radius: 12
+  color: Models.Theme.surface
+  radius: Models.Theme.radius
 
   Column {
-    id: stackedHero
-
-    visible: root.stacked
     anchors.centerIn: parent
-    spacing: 8
+    width: Math.min(parent.width - 32, 280)
+    spacing: root.stacked ? 8 : 4
 
-    Text {
+    Row {
       anchors.horizontalCenter: parent.horizontalCenter
-      text: root.validNow ? root.hero.hour : ""
-      font.pixelSize: 56
-      font.family: "JetBrains Mono"
-      font.weight: Font.DemiBold
-      color: Models.Theme.foreground
-    }
-
-    // The meridiem aligns its baseline with the minute text through
-    // sibling baseline anchoring inside a plain Item; a Row positioner
-    // would only top-align items of different heights.
-    Item {
-      anchors.horizontalCenter: parent.horizontalCenter
-      width: minuteText.width + meridiemText.width + 4
-      height: minuteText.height
+      spacing: 6
 
       Text {
-        id: minuteText
+        id: timeText
 
-        anchors.left: parent.left
-        anchors.top: parent.top
-        text: root.validNow ? root.hero.minute : ""
-        font.pixelSize: 56
+        text: root.validNow ? `${root.hero.hour}:${root.hero.minute}` : ""
+        font.pixelSize: root.stacked ? 64 : 48
         font.family: "JetBrains Mono"
         font.weight: Font.DemiBold
         color: Models.Theme.foreground
       }
 
       Text {
-        id: meridiemText
-
-        anchors.baseline: minuteText.baseline
-        anchors.left: minuteText.right
-        anchors.leftMargin: 4
+        anchors.baseline: timeText.baseline
         text: root.hero.meridiem
-        font.pixelSize: 14
-        color: Models.Theme.subtext0
+        font.pixelSize: 13
+        font.weight: Font.Medium
+        color: Models.Theme.muted
       }
     }
 
-    Rectangle {
+    Text {
       anchors.horizontalCenter: parent.horizontalCenter
-      width: 160
-      height: 2
-      radius: 1
+      text: root.validNow ? Qt.formatDate(root.now, "dddd") : ""
+      font.pixelSize: root.stacked ? 18 : 14
+      font.weight: Font.Medium
       color: Models.Theme.foreground
-      opacity: 0.12
+    }
+
+    Text {
+      anchors.horizontalCenter: parent.horizontalCenter
+      text: root.validNow ? Qt.formatDate(root.now, "MMMM d, yyyy") : ""
+      font.pixelSize: 12
+      color: Models.Theme.muted
+    }
+
+    Rectangle {
+      width: parent.width
+      height: 3
+      radius: 2
+      color: Models.Theme.muted
 
       Rectangle {
         width: parent.width * root.secondsFraction
         height: parent.height
-        radius: 1
+        radius: 2
         color: Models.Theme.accent
 
         Behavior on width {
@@ -97,37 +83,6 @@ Rectangle {
           }
         }
       }
-    }
-
-    Text {
-      anchors.horizontalCenter: parent.horizontalCenter
-      text: ClockFormat.formatLongDate(root.now)
-      font.pixelSize: 12
-      color: Models.Theme.subtext0
-    }
-  }
-
-  Row {
-    visible: !root.stacked
-    anchors.verticalCenter: parent.verticalCenter
-    anchors.left: parent.left
-    anchors.leftMargin: 16
-    anchors.right: parent.right
-    anchors.rightMargin: 16
-    spacing: 16
-
-    Text {
-      text: root.validNow ? ClockFormat.formatTime(root.now) : ""
-      font.pixelSize: 40
-      font.family: "JetBrains Mono"
-      color: Models.Theme.foreground
-    }
-
-    Text {
-      anchors.verticalCenter: parent.verticalCenter
-      text: root.validNow ? ClockFormat.formatLongDate(root.now) : ""
-      font.pixelSize: 12
-      color: Models.Theme.subtext0
     }
   }
 }

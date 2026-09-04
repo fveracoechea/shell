@@ -20,10 +20,15 @@ Scope {
     hostname: Modules.System.hostname
     kernel: Modules.System.kernel
     desktop: Modules.System.desktop
+    compositorVersion: Modules.System.compositorVersion
     cpuUsage: Modules.System.cpuUsage
     cpuTempC: Modules.System.cpuTempC
     memoryUsed: Modules.System.memoryUsed
+    memoryUsedKb: Modules.System.memoryUsedKb
+    memoryTotalKb: Modules.System.memoryTotalKb
     diskUsed: Modules.System.diskUsed
+    diskUsedKb: Modules.System.diskUsedKb
+    diskTotalKb: Modules.System.diskTotalKb
     uptimeSeconds: Modules.System.uptimeSeconds
     userName: Modules.Identity.name
     userFacePath: Modules.Identity.facePath

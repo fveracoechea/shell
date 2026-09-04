@@ -11,6 +11,6 @@ Text {
   font.pixelSize: 10
   font.letterSpacing: 1.2
   font.capitalization: Font.AllUppercase
-  color: Models.Theme.overlay0
+  color: Models.Theme.muted
   text: root.label
 }

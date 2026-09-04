@@ -1,144 +1,184 @@
+pragma ComponentBehavior: Bound
+
 import QtQuick
 
 import qs.Components as Components
 import qs.Models as Models
 import "../../Models/Weather.js" as Weather
 
-// Weather section card: current conditions on top, the seven day strip
-// underneath. All inputs are injected model properties; the card never
-// touches platform state.
+// Current conditions and a compact seven-day Open-Meteo forecast.
 Rectangle {
   id: root
 
-  // Normalized current conditions from Models/Weather.parse, or null.
   property var current: null
-
-  // Normalized daily entries, today first.
   property var daily: []
-
-  // "loading", "ready", "unavailable", or "stale" from the Weather Feature
-  // Service.
   property string status: "loading"
 
   readonly property bool hasCurrent: current !== null
-  readonly property string conditionIcon: root.hasCurrent ? Weather.describe(root.current.code).iconKey : "cloud"
+  readonly property var forecastDays: Array.isArray(daily) ? daily.slice(0, 7) : []
+  readonly property string conditionIcon: hasCurrent ? Weather.describe(current.code).iconKey : "cloud"
 
   implicitWidth: 296
-  implicitHeight: content.implicitHeight + 2 * 16
+  implicitHeight: content.implicitHeight + 32
 
-  color: Models.Theme.surface0
-  radius: 12
+  color: Models.Theme.surface
+  radius: Models.Theme.radius
 
   Column {
     id: content
 
     anchors.fill: parent
     anchors.margins: 16
-    spacing: 8
+    spacing: 10
 
     Components.SectionLabel {
       label: "Weather"
     }
 
-    Row {
+    Item {
       width: parent.width
-      spacing: 8
+      height: 64
 
       Components.Icon {
+        id: currentIcon
+
+        anchors.left: parent.left
         anchors.verticalCenter: parent.verticalCenter
         name: root.conditionIcon
-        size: 30
-        color: root.hasCurrent ? Models.Theme.accent : Models.Theme.overlay0
+        size: 42
+        color: root.hasCurrent ? Models.Theme.accent : Models.Theme.muted
+      }
+
+      Text {
+        id: temperature
+
+        anchors.left: currentIcon.right
+        anchors.leftMargin: 10
+        anchors.verticalCenter: parent.verticalCenter
+        text: root.hasCurrent ? Weather.formatTemp(root.current.temperatureC) : "--"
+        font.pixelSize: 38
+        font.family: "JetBrains Mono"
+        font.weight: Font.DemiBold
+        color: Models.Theme.foreground
       }
 
       Column {
-        width: parent.width - 30 - 8
-        spacing: 0
+        anchors.left: temperature.right
+        anchors.leftMargin: 10
+        anchors.right: parent.right
+        anchors.verticalCenter: parent.verticalCenter
+        spacing: 2
 
         Text {
-          text: root.hasCurrent ? Weather.formatTemp(root.current.temperatureC) : "--"
-          font.pixelSize: 26
-          font.family: "JetBrains Mono"
-          color: Models.Theme.foreground
-        }
-
-        Text {
+          width: parent.width
           text: {
             if (root.hasCurrent) {
               return Weather.describe(root.current.code).label;
             }
-            if (root.status === "unavailable") {
-              return "Weather unavailable · Retrying every 30 minutes";
-            }
-            return "Waiting for data";
+            return root.status === "unavailable" ? "Weather unavailable" : "Waiting for weather";
           }
           font.pixelSize: 12
-          color: root.hasCurrent ? Models.Theme.foreground : Models.Theme.overlay0
+          elide: Text.ElideRight
+          color: Models.Theme.foreground
         }
 
         Text {
-          visible: root.hasCurrent
-          text: root.hasCurrent ? `${Math.round(root.current.humidity)}% humidity · ${Math.round(root.current.windKph)} km/h wind` : ""
+          width: parent.width
+          text: root.hasCurrent ? `Feels ${Weather.formatTemp(root.current.apparentC)}` : "Retrying automatically"
           font.pixelSize: 10
-          color: Models.Theme.overlay0
+          elide: Text.ElideRight
+          color: Models.Theme.muted
         }
       }
     }
 
-    Text {
-      visible: root.status === "unavailable" && root.hasCurrent
-      text: "Showing the last good update · Retrying every 30 minutes"
-      font.pixelSize: 10
-      color: Models.Theme.overlay0
+    Item {
+      width: parent.width
+      height: 18
+      visible: root.hasCurrent
+
+      Text {
+        anchors.left: parent.left
+        text: root.hasCurrent ? `${Math.round(root.current.humidity)}% humidity` : ""
+        font.pixelSize: 11
+        color: Models.Theme.foreground
+      }
+
+      Text {
+        anchors.right: parent.right
+        text: root.hasCurrent ? `${Math.round(root.current.windKph)} km/h wind` : ""
+        font.pixelSize: 11
+        color: Models.Theme.foreground
+      }
     }
 
-    Text {
-      visible: root.status === "stale" && root.hasCurrent
-      text: "Stale data"
-      font.pixelSize: 10
-      color: Models.Theme.overlay0
-    }
-
-    Row {
-      id: forecast
-
+    Column {
       width: parent.width
       spacing: 4
 
       Repeater {
-        model: root.hasCurrent ? root.daily : []
+        model: root.forecastDays
 
-        delegate: Column {
+        delegate: Item {
           id: day
 
+          required property int index
           required property var modelData
 
-          width: (parent.width - 6 * 4) / 7
-          spacing: 2
+          width: parent.width
+          height: 22
 
           Text {
-            anchors.horizontalCenter: parent.horizontalCenter
-            text: Weather.dayName(day.modelData.date)
-            font.pixelSize: 9
-            color: Models.Theme.overlay0
+            anchors.left: parent.left
+            anchors.verticalCenter: parent.verticalCenter
+            width: 44
+            text: day.index === 0 ? "Today" : Weather.dayName(day.modelData.date)
+            font.pixelSize: 11
+            font.weight: day.index === 0 ? Font.DemiBold : Font.Normal
+            color: day.index === 0 ? Models.Theme.accent : Models.Theme.foreground
           }
 
           Components.Icon {
-            anchors.horizontalCenter: parent.horizontalCenter
+            anchors.left: parent.left
+            anchors.leftMargin: 50
+            anchors.verticalCenter: parent.verticalCenter
             name: Weather.describe(day.modelData.code).iconKey
-            size: 16
-            color: Models.Theme.subtext0
+            size: 17
+            color: Models.Theme.foreground
           }
 
           Text {
-            anchors.horizontalCenter: parent.horizontalCenter
-            text: Weather.formatTemp(day.modelData.maxC)
-            font.pixelSize: 10
+            anchors.right: rain.left
+            anchors.rightMargin: 12
+            anchors.verticalCenter: parent.verticalCenter
+            text: `${Weather.formatTemp(day.modelData.maxC)} / ${Weather.formatTemp(day.modelData.minC)}`
+            font.pixelSize: 11
             font.family: "JetBrains Mono"
-            color: Models.Theme.subtext0
+            color: Models.Theme.foreground
+          }
+
+          Text {
+            id: rain
+
+            anchors.right: parent.right
+            anchors.verticalCenter: parent.verticalCenter
+            width: 32
+            text: `${Math.round(day.modelData.precipProbMax)}%`
+            font.pixelSize: 10
+            horizontalAlignment: Text.AlignRight
+            color: day.modelData.precipProbMax >= 50 ? Models.Theme.blue : Models.Theme.muted
           }
         }
       }
+    }
+
+    Text {
+      width: parent.width
+      visible: (root.status === "unavailable" || root.status === "stale") && root.hasCurrent
+      text: root.status === "stale" ? "Forecast update is delayed" : "Showing the last update while retrying"
+      font.pixelSize: 10
+      wrapMode: Text.WordWrap
+      color: Models.Theme.muted
     }
   }
 }

@@ -18,6 +18,7 @@ Singleton {
   readonly property string distro: _distro
   readonly property string hostname: _hostname
   readonly property string kernel: _kernel
+  readonly property string compositorVersion: _compositorVersion
 
   // Desktop environment from the session environment; "" when absent.
   readonly property string desktop: _currentDesktop !== "" ? _currentDesktop : _hyprlandSignature !== "" ? "Hyprland" : ""
@@ -27,11 +28,16 @@ Singleton {
   readonly property real cpuTempC: _cpuTempC
   readonly property real memoryUsed: _memory === null ? -1 : _memory.usedFraction
   readonly property real diskUsed: _disk === null ? -1 : _disk.usedFraction
+  readonly property real memoryUsedKb: _memory === null ? -1 : _memory.totalKb - _memory.availableKb
+  readonly property real memoryTotalKb: _memory === null ? -1 : _memory.totalKb
+  readonly property real diskUsedKb: _disk === null ? -1 : _disk.usedKb
+  readonly property real diskTotalKb: _disk === null ? -1 : _disk.totalKb
   readonly property int uptimeSeconds: _uptimeSeconds
 
   property string _distro: ""
   property string _hostname: ""
   property string _kernel: ""
+  property string _compositorVersion: ""
   property real _cpuUsage: -1
   property real _cpuTempC: -1
   property var _memory: null
@@ -96,7 +102,9 @@ Singleton {
     onTextChanged: {
       const ticks = SystemInfo.parseCpuTicks(text);
       if (ticks !== null) {
-        root._cpuUsage = SystemInfo.cpuFraction(root._prevCpuTicks, ticks);
+        if (root._prevCpuTicks !== null) {
+          root._cpuUsage = SystemInfo.cpuFraction(root._prevCpuTicks, ticks);
+        }
         root._prevCpuTicks = ticks;
       }
     }
@@ -126,7 +134,22 @@ Singleton {
     stdout: StdioCollector {
       id: tempCollector
 
-      onStreamFinished: root._cpuTempC = SystemInfo.parseCpuTemp(tempCollector.text)
+      onStreamFinished: {
+        const temperature = SystemInfo.parseCpuTemp(tempCollector.text);
+        root._cpuTempC = temperature === null ? -1 : temperature;
+      }
+    }
+  }
+
+  Process {
+    id: compositorProbe
+
+    command: ["hyprctl", "version", "-j"]
+
+    stdout: StdioCollector {
+      id: compositorCollector
+
+      onStreamFinished: root._compositorVersion = SystemInfo.parseHyprlandVersion(compositorCollector.text)
     }
   }
 
@@ -173,5 +196,8 @@ Singleton {
     uptimeFile.reload();
     root.sampleCpuTemp();
     root.sampleDisk();
+    if (root.desktop === "Hyprland" || root.desktop.indexOf("Hyprland") !== -1) {
+      compositorProbe.running = true;
+    }
   }
 }

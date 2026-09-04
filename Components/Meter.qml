@@ -17,6 +17,10 @@ Column {
   // Usage fraction in [0, 1]; negative means "no sample yet".
   property real fraction: -1
 
+  // Some measurements, such as CPU temperature, remain useful while the
+  // usage fraction is still waiting for a second sample.
+  property bool valueKnown: known
+
   readonly property real clamped: Math.min(1, Math.max(0, fraction))
   readonly property bool known: fraction >= 0
   readonly property color fillColor: fraction >= 0.9 ? Models.Theme.red : fraction >= 0.7 ? Models.Theme.yellow : Models.Theme.accent
@@ -32,16 +36,16 @@ Column {
       anchors.verticalCenter: parent.verticalCenter
       text: root.label
       font.pixelSize: 12
-      color: Models.Theme.subtext0
+      color: Models.Theme.muted
     }
 
     Text {
       anchors.right: parent.right
       anchors.verticalCenter: parent.verticalCenter
-      text: root.known ? root.value : "--"
+      text: root.valueKnown ? root.value : "--"
       font.pixelSize: 12
       font.family: "JetBrains Mono"
-      color: root.known ? Models.Theme.foreground : Models.Theme.overlay0
+      color: root.valueKnown ? Models.Theme.foreground : Models.Theme.muted
     }
   }
 

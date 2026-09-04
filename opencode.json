@@ -5,6 +5,11 @@
       "type": "local",
       "enabled": true,
       "command": ["mcp-nixos"]
+    },
+    "quickshell": {
+      "type": "local",
+      "enabled": true,
+      "command": ["quickshell-mcp"]
     }
   }
 }

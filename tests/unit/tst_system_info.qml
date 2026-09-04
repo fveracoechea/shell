@@ -101,6 +101,12 @@ TestCase {
     compare(SystemInfo.parseKernelVersion(""), "");
   }
 
+  function test_parses_hyprland_version() {
+    compare(SystemInfo.parseHyprlandVersion('{"branch":"main","version":"v0.56.2"}'), "0.56.2");
+    compare(SystemInfo.parseHyprlandVersion("not json"), "");
+    compare(SystemInfo.parseHyprlandVersion('{"branch":"main"}'), "");
+  }
+
   function test_formats_percent() {
     compare(SystemInfo.formatPercent(0.425), "43%");
     compare(SystemInfo.formatPercent(0), "0%");
@@ -119,5 +125,11 @@ TestCase {
     compare(SystemInfo.describeUptime(2 * 3600 + 14 * 60), "2h 14m");
     compare(SystemInfo.describeUptime(5 * 86400 + 3 * 3600 + 42 * 60), "5d 3h");
     compare(SystemInfo.describeUptime(-1), "--");
+  }
+
+  function test_formats_kibibyte_pair() {
+    compare(SystemInfo.formatKibPair(4404019, 16384000), "4.2 / 15.6 GiB");
+    compare(SystemInfo.formatKibPair(512000, 1024000), "500 / 1000 MiB");
+    compare(SystemInfo.formatKibPair(-1, -1), "--");
   }
 }

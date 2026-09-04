@@ -30,11 +30,21 @@ PanelWindow {
     x: manager.dropdownState.x,
     width: manager.dropdownState.width
   }, panelWidth, width, manager.screenMargin)
+  readonly property var frame: DropdownGeometry.morphFrame({
+    x: manager.dropdownState.x,
+    width: manager.dropdownState.width
+  }, {
+    x: boxX,
+    y: barHeight + manager.screenMargin,
+    width: panelWidth,
+    height: panelHeight,
+    radius: Models.Theme.radius
+  }, barHeight, reveal)
+  property real reveal: open ? 1 : 0
 
   onOpenChanged: {
     if (open) {
       box.forceActiveFocus();
-      dash.revealCards();
     }
   }
 
@@ -53,14 +63,14 @@ PanelWindow {
   WlrLayershell.layer: WlrLayer.Top
   WlrLayershell.keyboardFocus: open ? WlrKeyboardFocus.OnDemand : WlrKeyboardFocus.None
 
-  visible: open || box.height > 0
+  visible: open || reveal > 0
 
   mask: Region {
     item: dismissArea
 
     Region {
       item: box
-      radius: 16
+      radius: box.radius
       intersection: Intersection.Combine
     }
 
@@ -81,16 +91,21 @@ PanelWindow {
     onClicked: root.manager.close()
   }
 
-  Item {
+  Rectangle {
     id: box
 
-    x: root.boxX
-    y: root.barHeight + root.manager.screenMargin
-    width: root.panelWidth
-    height: root.open ? root.panelHeight : 0
+    x: root.frame.x
+    y: root.frame.y
+    width: root.frame.width
+    height: root.frame.height
+    radius: root.frame.radius
+    color: Models.Theme.background
+    border.width: 1
+    border.color: Models.Theme.borderColor
     clip: true
-    visible: height > 0
+    visible: root.reveal > 0
     focus: root.open
+    z: 1
 
     Keys.onEscapePressed: root.manager.close()
 
@@ -104,11 +119,14 @@ PanelWindow {
     Flickable {
       id: scroll
 
-      anchors.fill: parent
+      x: (box.width - width) / 2
+      width: root.panelWidth
+      height: root.panelHeight
       contentWidth: width
       contentHeight: dash.implicitHeight
       interactive: contentHeight > height
       boundsBehavior: Flickable.StopAtBounds
+      z: 1
 
       Dash.Dashboard {
         id: dash
@@ -123,22 +141,27 @@ PanelWindow {
         hostname: Modules.System.hostname
         kernel: Modules.System.kernel
         desktop: Modules.System.desktop
+        compositorVersion: Modules.System.compositorVersion
         cpuUsage: Modules.System.cpuUsage
         cpuTempC: Modules.System.cpuTempC
         memoryUsed: Modules.System.memoryUsed
+        memoryUsedKb: Modules.System.memoryUsedKb
+        memoryTotalKb: Modules.System.memoryTotalKb
         diskUsed: Modules.System.diskUsed
+        diskUsedKb: Modules.System.diskUsedKb
+        diskTotalKb: Modules.System.diskTotalKb
         uptimeSeconds: Modules.System.uptimeSeconds
         userName: Modules.Identity.name
         userFacePath: Modules.Identity.facePath
       }
     }
+  }
 
-    Behavior on height {
-      NumberAnimation {
-        duration: Models.Motion.reduce ? 0 : root.open ? Models.Motion.duration.spatialOpen : Models.Motion.duration.spatialClose
-        easing.type: Easing.BezierSpline
-        easing.bezierCurve: root.open ? Models.Motion.curves.emphasizedDecel : Models.Motion.curves.emphasizedAccel
-      }
+  Behavior on reveal {
+    NumberAnimation {
+      duration: Models.Motion.reduce ? 0 : root.open ? Models.Motion.duration.spatialOpen : Models.Motion.duration.spatialClose
+      easing.type: Easing.BezierSpline
+      easing.bezierCurve: root.open ? Models.Motion.curves.emphasizedDecel : Models.Motion.curves.emphasizedAccel
     }
   }
 }
